@@ -27,8 +27,8 @@ global.parts = [
 global.towers = {
     'other': [],
     'E59S62': ['5807144f5b35cec470f1bf13', '580aa04a9467a0153e9f5aa0', '583637e8d6b6df8f6806b9a6'],
-    'E59S61': ['580abd8c5b264d2c07498dd8', '58113f17ffb52d6f29c16b21', '582e15aa0c2f48cd0cccb590'],
-    'E58S62': ['5816b0c63ce5b03567601525'],
+    'E59S61': ['580abd8c5b264d2c07498dd8', '58113f17ffb52d6f29c16b21', '582e15aa0c2f48cd0cccb590', '587168715303c12a5ca188e5', '58716b324896104c500eeeb4', '58716f4c9bc4e78166f850ea'],
+    'E58S62': ['5816b0c63ce5b03567601525', '5821c83fb28725375521b837', '58420112fb9f027254027939'],
 };
 global.links = {
     'other' : [],
@@ -36,14 +36,24 @@ global.links = {
     'E59S61': [{ link: '5810b0ee2ff05dea0d3ef8ef', targets: ['581163f81e3570ed437f842d'] }],
     'E58S62': [{ link: '581b888866ba7b71650a3056', targets: ['5820fc1b99681ba66f51ddd5', '581b6c3403f2eb460ff54b0f']}],
 };
-global.labs = { 'other' : {}, 'E59S62': {}, 'E59S61': {}, 'E58S62': {} };
-global.terminals = { 'other' : {}, 'E59S62': {}, 'E59S61': {}, 'E58S62': {} };
+global.labs = {
+    'other' : {},
+    'E59S62': { none: [{ labID: '58318e8581c212d729c2eb2e', sources: ['58319b1fcd51df5772df507c', '5831a59bdbdd066e54d80485'] }] },
+    'E59S61': { none: [{ labID: '587d822f4fca26681656bfc8', sources: ['587d466d238d0acd35f14536', '587d519bf4b662ca62fc248c'] }] },
+    'E58S62': { none: [{ labID: '587d8e5d56d9ac99164dc573', sources: ['587d99fb1ab8e96a74fc2bf3', '587da4756c0745243ad48030'] }] },
+};
+global.terminals = {
+    'other' : [],
+    'E59S62': [ { type: 'UL', target: 'E59S61' } ],
+    'E59S61': [],
+    'E58S62': [ { type: 'ZK', target: 'E59S61' } ],
+};
 global.deals = [
-    { room: 'E59S62', type: 'U', price: 0.4 },
-    { room: 'E59S62', type: 'L', price: 0.4 },
-    { room: 'E59S61', type: 'H', price: 0.5 },
-    { room: 'E58S62', type: 'K', price: 0.5 },
-    { room: 'E58S62', type: 'Z', price: 0.5 },
+    { room: 'E59S62', type: 'U', price: 0.2 },
+    { room: 'E59S62', type: 'L', price: 0.2 },
+    { room: 'E59S61', type: 'H', price: 0.8 },
+    { room: 'E58S62', type: 'K', price: 0.3 },
+    { room: 'E58S62', type: 'Z', price: 0.15 },
     { room: 'E59S62', type: 'energy', price: 0.15 },
     { room: 'E59S61', type: 'energy', price: 0.15 },
     { room: 'E58S62', type: 'energy', price: 0.15 },

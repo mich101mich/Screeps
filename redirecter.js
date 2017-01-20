@@ -2,8 +2,10 @@ const jobs = {
     'E59S62': [
         { pos: new RoomPosition(30,44,'E59S62'), dump: 8, connections: [
             { type: 'energy', sources: [1], targets: [4,8] },
-            { type: 'U', sources: [8], targets: [4] },
-            { type: 'energy', sources: [4], targets: [8], min: 100000 },
+            { type: 'U', sources: [8], targets: [5,4] },
+            { type: 'L', sources: [4], targets: [3] },
+            { type: 'UL', sources: [2], targets: [4] },
+            { type: 'energy', sources: [4], targets: [8], min: 200000 },
             { type: 'energy', sources: [8], targets: [4], min: 10000 },
         ]},
         { pos: new RoomPosition(16,13,'E59S62'), connections: [
@@ -14,7 +16,7 @@ const jobs = {
         { pos: new RoomPosition(13,14,'E59S61'), dump: 4, connections: [
             { type: 'energy', sources: [3], targets: [8,4] },
             { type: 'H', sources: [4], targets: [8] },
-            { type: 'energy', sources: [8], targets: [4], min: 100000 },
+            { type: 'energy', sources: [8], targets: [4], min: 200000 },
             { type: 'energy', sources: [4], targets: [8], min: 10000 },
         ]},
         { pos: new RoomPosition(11,12,'E59S61'), dump: 4, connections: [
@@ -26,8 +28,10 @@ const jobs = {
     'E58S62': [
         { pos: new RoomPosition(14,18,'E58S62'), dump: 6, connections: [
             { type: 'energy', sources: [3], targets: [2,6] },
-            { type: 'K', sources: [6], targets: [2] },
-            { type: 'energy', sources: [2], targets: [6], min: 100000 },
+            { type: 'K', sources: [6], targets: [1,2] },
+            { type: 'Z', sources: [2], targets: [8] },
+            { type: 'ZK', sources: [7], targets: [2] },
+            { type: 'energy', sources: [2], targets: [6], min: 200000 },
             { type: 'energy', sources: [6], targets: [2], min: 10000 },
         ]},
     ],

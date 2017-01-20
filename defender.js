@@ -10,7 +10,7 @@ module.exports = {
         switch(creep.memory.state)
         {
             default:
-                if (Game.time % 3 === 0 || creep.memory.hasTarget)
+                if (Game.time % 5 === 0 || creep.memory.hasTarget)
                 {
                     if (creep.pos.roomName === job)
                     {

@@ -17,6 +17,11 @@ const jobs = {
             { type: 'energy', sources: [8], targets: [4], min: 100000 },
             { type: 'energy', sources: [4], targets: [8], min: 10000 },
         ]},
+        { pos: new RoomPosition(11,12,'E59S61'), dump: 4, connections: [
+            { type: 'ZK', sources: [4], targets: [6] },
+            { type: 'UL', sources: [4], targets: [7] },
+            { type: 'G', sources: [8], targets: [4] },
+        ]},
     ],
     'E58S62': [
         { pos: new RoomPosition(14,18,'E58S62'), dump: 6, connections: [
@@ -42,7 +47,7 @@ module.exports = {
                     creep.suicide();
                     return;
                 }
-                if (creep.get('*') > 0)
+                if (creep.get() > 0)
                 {
                     for (let type in creep.carry)
                     {
@@ -81,11 +86,11 @@ module.exports = {
                         }
                     }
                 }
-                if (dump && creep.pickUp('*'))
+                if (dump && creep.pickUp())
                     creep.memory.state = STATE_WORKING;
                 return;
 			case STATE_WORKING:
-                if (creep.get('*') === 0)
+                if (creep.get() === 0)
                 {
                     delete creep.memory.state;
                     return;

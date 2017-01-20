@@ -50,6 +50,8 @@ module.exports = {
                     return;
                 }
                 creep.movePath(back, dest, start);
+                if (Game.time === 0)
+                    return;
                 const road = creep.room.lookForAt(LOOK_STRUCTURES, creep).find(s => s.structureType === STRUCTURE_ROAD);
                 if (road)
                 {

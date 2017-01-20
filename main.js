@@ -236,10 +236,13 @@ module.exports.loop = function ()
             let buy = _.min(Game.market.getAllOrders({type: ORDER_BUY, resourceType: type})
                 .filter(o => o.price >= price && o.amount >= 1000)
                 , o => o.price);
-            if (!buy || buy == Infinity)
+           if (!buy || buy == Infinity)
                 continue;
             if (amount >= 15000)
+            {
                 Game.market.deal(buy.id, Math.min(buy.amount, 10000, amount), room);
+                continue;
+            }
             
             // buy resources
             const space = r.terminal.neededResources();
@@ -248,7 +251,7 @@ module.exports.loop = function ()
             let sell = _.min(Game.market.getAllOrders({type: ORDER_SELL, resourceType: type})
                 .filter(o => o.price < price && o.amount >= 1000)
                 , o => o.price);
-            if (sell && sell != Infinity && sell.price < buy.price*0.9)
+            if (sell && sell != Infinity && sell.price < buy.price*0.7)
                 Game.market.deal(sell.id, Math.min(sell.amount, 10000, space), room);
         }
     }

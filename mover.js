@@ -15,6 +15,9 @@ const jobs = {
 module.exports = {
 	run : function(creep)
 	{
+	    if (Game.cpu.bucket < 500 && Game.time % 2 === 0)
+	        return;
+	    
 		if (Game.time % 20 === (creep.memory.job || 0) * 2 && creep.getActiveBodyparts('carry') < 4 && (spawn = Game.spawns[creep.getRoomName()], spawn && spawn.room.energyAvailable > 800 && !spawn.spawning))
 		    creep.suicide();
 	    if (!jobs[creep.getRoomName()]) jobs[creep.getRoomName()] = jobs['other'];

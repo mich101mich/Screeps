@@ -1,15 +1,15 @@
 global.rooms = ['E59S62', 'E59S61', 'E58S62', 'other'];
 global.reservations = [  ];
-global.claims = [ 'E57S61', 'E57S62', 'E58S61' ];
+global.claims = [ 'E57S61', 'E57S62', 'E58S61', 'E59S61', 'E59S62', 'E58S62' ];
 global.blackList = [ 'E57S61', 'E55S62', 'E56S62' ];
 const roles = { };
 const DEFENDER=0, HARVESTER=1,UPGRADER=2,MOVER=3,REDIRECTER=4,MINER=5,BUILDER=6,REPAIRER=7,COLLECTER=8,CLAIMER=9,GATHERER=10;
 global.ROLE = ['defender','harvester','upgrader','mover','redirecter','miner','builder','repairer','collecter','claimer','gatherer'];
 global.max = {
     'other' : [     3    ,     3     ,     0    ,   0   ,      0     ,   0   ,    0    ,     0    ,     4     ,     0   ,     0    ],
-    'E59S62': [     0    ,     2     ,     1    ,   2   ,      2     ,   1   ],
-    'E59S61': [     0    ,     1     ,     1    ,   2   ,      2     ,   1   ],
-    'E58S62': [     0    ,     2     ,     1    ,   2   ,      1     ,   1   ],
+    'E59S62': [     0    ,     2     ,     0    ,   2   ,      2     ,   1   ],
+    'E59S61': [     0    ,     1     ,     0    ,   2   ,      2     ,   1   ],
+    'E58S62': [     0    ,     2     ,     0    ,   2   ,      1     ,   1   ],
 };
 global.parts = [
 	{ 'move': 25, 'attack': 18, 'heal': 7 }, // defender
@@ -28,7 +28,7 @@ global.towers = {
     'other': [],
     'E59S62': ['5807144f5b35cec470f1bf13', '580aa04a9467a0153e9f5aa0', '583637e8d6b6df8f6806b9a6'],
     'E59S61': ['580abd8c5b264d2c07498dd8', '58113f17ffb52d6f29c16b21', '582e15aa0c2f48cd0cccb590', '587168715303c12a5ca188e5', '58716b324896104c500eeeb4', '58716f4c9bc4e78166f850ea'],
-    'E58S62': ['5816b0c63ce5b03567601525', '5821c83fb28725375521b837', '58420112fb9f027254027939'],
+    'E58S62': ['5816b0c63ce5b03567601525', '5821c83fb28725375521b837', '58551a5195341e682660b953'],
 };
 global.links = {
     'other' : [],
@@ -49,14 +49,15 @@ global.terminals = {
     'E58S62': [ { type: 'ZK', target: 'E59S61' } ],
 };
 global.deals = [
-    { room: 'E59S62', type: 'U', price: 0.2 },
+    { room: 'E59S61', type: 'H', price: 0.2 },
+    { room: 'E59S61', type: 'O', price: 0.1 },
+    { room: 'E59S62', type: 'U', price: 0.15 },
     { room: 'E59S62', type: 'L', price: 0.2 },
-    { room: 'E59S61', type: 'H', price: 0.8 },
-    { room: 'E58S62', type: 'K', price: 0.3 },
+    { room: 'E58S62', type: 'K', price: 0.15 },
     { room: 'E58S62', type: 'Z', price: 0.15 },
-    { room: 'E59S62', type: 'energy', price: 0.15 },
-    { room: 'E59S61', type: 'energy', price: 0.15 },
-    { room: 'E58S62', type: 'energy', price: 0.15 },
+    { room: 'E59S62', type: 'energy', price: 0.06, minStorage: 700000, min: 100000 },
+    { room: 'E59S61', type: 'energy', price: 0.06, minStorage: 700000, min: 100000 },
+    { room: 'E58S62', type: 'energy', price: 0.06, minStorage: 700000, min: 100000 },
 ];
 global.minerals = {
     'other' : { id: '57efa0c1b8c6899106eaedd4', type: 'U' },
@@ -70,8 +71,8 @@ module.exports.loop = function ()
     let error;
     try
     {
-        
-        
+
+
         /*// recycling with a creep
         if (Game.creeps.smash && Game.flags.recycle)
             if (Game.creeps.smash.goTo(Game.flags.recycle,1))
@@ -220,7 +221,7 @@ module.exports.loop = function ()
     // always look for tokens ;) just in case
     if (Game.time % 4 === 0)
     {
-        const token = Game.market.getAllOrders({type:ORDER_SELL, resourceType:SUBSCRIPTION_TOKEN}).find(o => o.price < Game.market.credits);
+        const token = Game.market.getAllOrders({type:ORDER_SELL, resourceType:SUBSCRIPTION_TOKEN}).find(o => o.price < Game.market.credits && o.price < 3000000);
         if (token) Game.market.deal(token.id, 1);
     }
 	if (Game.time % 32 === 0)
@@ -228,17 +229,17 @@ module.exports.loop = function ()
         // check through all the deals
         for (let i in deals)
         {
-            const { room, type, price } = deals[i]; const r = Game.rooms[room];
-            if (!r || !r.terminal || !r.storage)
+            const { room, type, price, min = 5000, minStorage = 0 } = deals[i]; const r = Game.rooms[room];
+            if (!r || !r.terminal || !r.storage || r.storage.get('energy') < 100000 || r.storage.get(type) < minStorage)
                 continue;
             // sell resources
             const amount = r.terminal.get(type);
             let buy = _.min(Game.market.getAllOrders({type: ORDER_BUY, resourceType: type})
                 .filter(o => o.price >= price && o.amount >= 1000)
                 , o => o.price);
-           if (!buy || buy == Infinity)
+            if (!buy || buy == Infinity)
                 continue;
-            if (amount >= 15000)
+            if (amount >= min)
             {
                 Game.market.deal(buy.id, Math.min(buy.amount, 10000, amount), room);
                 continue;
@@ -246,12 +247,12 @@ module.exports.loop = function ()
             
             // buy resources
             const space = r.terminal.neededResources();
-            if (space < 5000)
+            if (space < 5000 || type === 'energy')
                 continue;
             let sell = _.min(Game.market.getAllOrders({type: ORDER_SELL, resourceType: type})
                 .filter(o => o.price < price && o.amount >= 1000)
                 , o => o.price);
-            if (sell && sell != Infinity && sell.price < buy.price*0.7)
+            if (sell && sell != Infinity && sell.price < buy.price*0.9)
                 Game.market.deal(sell.id, Math.min(sell.amount, 10000, space), room);
         }
     }
@@ -264,6 +265,9 @@ module.exports.loop = function ()
 	}
 	if (Game.time % 64 === 0)
 	{
+        // update repair amount
+        Memory.count.energy = _.min(_.filter(Game.rooms, r => r.storage).map(r => r.storage.store['energy']));
+        
 	    // look for structures that need repairing
 		Memory.repair = {};
 		_.forEach(Game.rooms, r => {
@@ -328,7 +332,7 @@ module.exports.loop = function ()
 		let room = rooms[r];
 
 		/* Towers =====================================================================================================================================================================*/ try {
-		if (Game.time % 4 === 0 || Memory.state[room] > 0)
+		if (Game.time % 6 === 0 || Memory.state[room] > 0)
 		{
             for (let t in towers[room])
             {
@@ -394,7 +398,7 @@ module.exports.loop = function ()
     		let send = false;
     		for (let t in terminals[room])
     		{
-    		    const { type, target, amount = 1000, max = 19000 } = terminals[room][t];
+    		    const { type, target, amount = 1000, max = 9000 } = terminals[room][t];
     			if (Game.rooms[room].terminal.get(type) >= amount && Game.rooms[target].terminal.get(type) < max && Game.rooms[target].terminal.neededResources(type) > amount)
     			{
     			    Game.rooms[room].terminal.send(type, amount, target);
@@ -562,23 +566,23 @@ module.exports.loop = function ()
 		console.log('Room other: ' + _.reduce(max['other'], (ret,m,role) => { if (m > 0) ret += ROLE[role] + ': ' + m + '  '; return ret; }, ''));
 	}
 	
+    // send a debug message as notification
+    if (Game.time % 8192 === 0)
+    {
+        let message = 'Average CPU usage: ' + (Memory.cpu.total/Memory.cpu.count) + ';  total Bucket: ' + Game.cpu.bucket + ';\n'
+            + 'Builds: ' + _.filter(Game.constructionSites, c => blackList.indexOf(c.pos.roomName) === -1).length + ';   '
+            + 'Repairs: ' + Memory.count.repair + ';\n'
+            + 'Credits: ' + Math.floor(Game.market.credits / 1000) + 'K;\n';
+        _.filter(Game.rooms, r => r && r.storage)
+            .forEach(r => message += r.name + ': ' + Math.floor(r.storage.get('energy')/10000) + ';  ');
+        Game.notify(message, 60);
+    }
+
 	// meassure and calculate average CPU usage
 	if (!Memory.cpu || Game.time % 8192 === 0)
 	    Memory.cpu = { total: 0, count: 0 };
 	Memory.cpu.total += Game.cpu.getUsed();
 	Memory.cpu.count++;
-
-    // send a debug message as notification
-    if (Game.time % 8192 === 0)
-    {
-        let message = 'Average CPU usage: ' + (Memory.cpu.total/Memory.cpu.count) + 'total Bucket: ' + Game.cpu.bucket + ';\n'
-            + 'Builds: ' + _.filter(Game.constructionSites, c => blackList.indexOf(c.pos.roomName) === -1).length + ';   '
-            + 'Repairs: ' + Memory.count.repair + ';\n'
-            + 'Credits: ' + Math.floor(Game.market.credits / 1000) + 'K;\n';
-        _.filter(Game.rooms, r => r && r.storage)
-            .forEach(r => message += r.name + ': ' + Math.floor(r.storage.get('energy')/1000000) + ';  ');
-        Game.notify(message, 60);
-    }
 
     // re-throw any error messages -> notification and red triangle next to "Console"
 	if (error !== undefined)
@@ -641,11 +645,12 @@ Structure.prototype.isType = function (type)
 // determine if a structure needs to be repaired or not
 Structure.prototype.needsRepair = function (repairing)
 {
+    let limit = 0.6;
     if (this.structureType === 'constructedWall')
-    	return this.hits < Math.min(this.hitsMax, 1000000) * (repairing ? 1 : 0.98);
+        limit =  0.98;
     if (this.structureType === 'rampart')
-    	return this.hits < Math.min(this.hitsMax, 5000000) * (repairing ? 1 : 0.9);
-	return this.hits < Math.min(this.hitsMax, 1000000) * (repairing ? 1 : 0.6);
+        limit = 0.9;
+	return this.hits < Math.min(this.hitsMax, Memory.count.energy * 10) * (repairing ? 1 : limit);
 };
 // get the amount of a certain resource available in a structure
 Structure.prototype.get = function (type)
@@ -656,19 +661,23 @@ Structure.prototype.get = function (type)
         return (!type ? _.sum(this.store) : (!this.store || !this.store[type] ? 0 : this.store[type]));
 	if (this.structureType === 'lab' && this.mineralType === type)
 		return this.mineralAmount;
+	if (this.structureType === 'nuker' && type === 'G')
+        return this.ghodium;
 	return 0;
 };
 // get the amount of resources of a certain type that a structure needs / can handle
 Structure.prototype.neededResources = function (type)
 {
 	if (this.structureType === 'terminal')
-        return (!type ? this.storeCapacity : (type === 'energy' ? 200000 : 20000)) - this.get(type);
+        return Math.min((!type ? this.storeCapacity : (type === 'energy' ? 200000 : 14000)) - this.get(type), this.storeCapacity - this.get());
 	if ((type === 'energy' || !type) && this.energyCapacity)
 		return this.energyCapacity - this.energy;
 	if (this.storeCapacity)
 		return this.storeCapacity - _.sum(this.store);
 	if (this.structureType === 'lab' && (this.mineralType === type || this.mineralType === null))
 		return this.mineralCapacity - this.mineralAmount;
+	if (this.structureType === 'nuker' && type === 'G')
+        return this.ghodiumCapacity - this.ghodium;
 	return 0;
 };
 // get the amount of a certain resource that a creep holds

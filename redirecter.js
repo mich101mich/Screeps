@@ -14,10 +14,11 @@ const jobs = {
     ],
     'E59S61': [
         { pos: new RoomPosition(13,14,'E59S61'), dump: 4, connections: [
-            { type: 'energy', sources: [3], targets: [8,4] },
+            { type: 'energy', sources: [3], targets: [1,7,8,5,4] },
             { type: 'H', sources: [4], targets: [8] },
+            { type: 'G', sources: [8], targets: [5] },
             { type: 'energy', sources: [8], targets: [4], min: 200000 },
-            { type: 'energy', sources: [4], targets: [8], min: 10000 },
+            { type: 'energy', sources: [4], targets: [1,7,8,5], min: 10000 },
         ]},
         { pos: new RoomPosition(11,12,'E59S61'), dump: 4, connections: [
             { type: 'ZK', sources: [4], targets: [6] },
@@ -27,7 +28,7 @@ const jobs = {
     ],
     'E58S62': [
         { pos: new RoomPosition(14,18,'E58S62'), dump: 6, connections: [
-            { type: 'energy', sources: [3], targets: [2,6] },
+            { type: 'energy', sources: [3], targets: [4,2,6] },
             { type: 'K', sources: [6], targets: [1,2] },
             { type: 'Z', sources: [2], targets: [8] },
             { type: 'ZK', sources: [7], targets: [2] },
@@ -39,7 +40,7 @@ const jobs = {
 module.exports = {
 	run: function (creep)
 	{
-	    if (Game.time % 2 === 0)
+	    if ((Game.cpu.bucket < 500 && Game.time % 8 !== 0) || Game.time % 2 === 0)
 	        return;
 	    
 		let { pos, dump, connections } = jobs[creep.getRoomName()][creep.memory.job] || jobs[creep.getRoomName()][0];

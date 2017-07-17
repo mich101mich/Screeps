@@ -20,7 +20,7 @@ module.exports = {
 	run: function (creep)
 	{
 	    if (!jobs[creep.getRoomName()]) jobs[creep.getRoomName()] = jobs['other'];
-		let { pos, sourceID, targets} = jobs[creep.getRoomName()][creep.memory.job] || jobs[creep.getRoomName()][0];
+		let { pos, sourceID, targets } = jobs[creep.getRoomName()][creep.memory.job] || jobs[creep.getRoomName()][0];
 		if (creep.getActiveBodyparts('work') < 3 && (spawn = Game.spawns[creep.getRoomName()], spawn && spawn.room.energyAvailable >= 800 && !spawn.spawning))
 		    creep.suicide();
 		switch (creep.memory.state)
@@ -34,9 +34,9 @@ module.exports = {
                 creep.harvest(source);
                 if (creep.get('energy') < 10)
                     return;
-                for (let t in targets)
+                for (const t of targets)
                 {
-                    let target = creep.room.lookForAt(LOOK_STRUCTURES, creep.pos.getInDirection(targets[t])).find(s => s.storeCapacity !== undefined || s.energyCapacity !== undefined);
+                    const target = creep.room.lookForAt(LOOK_STRUCTURES, creep.pos.getInDirection(t)).find(s => s.storeCapacity !== undefined || s.energyCapacity !== undefined);
                     switch(Game.time % 4)
                     {
                         case 0:
@@ -44,7 +44,7 @@ module.exports = {
                             else continue;
                             return;
                         case 1:
-                            if (!target) creep.build(creep.room.lookForAt(LOOK_CONSTRUCTION_SITES, creep.pos.getInDirection(targets[t]))[0]);
+                            if (!target) creep.build(creep.room.lookForAt(LOOK_CONSTRUCTION_SITES, creep.pos.getInDirection(t))[0]);
                             else continue;
                             return;
                         case 2:

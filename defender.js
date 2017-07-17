@@ -1,4 +1,4 @@
-const jobs = [ 'E58S61', 'E57S61', 'E57S62', 'E57S62' ];
+const jobs = [ 'E58S61', 'E58S61' ];
 module.exports = {
     run: function(creep)
     {

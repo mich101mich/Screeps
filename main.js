@@ -1,12 +1,12 @@
 global.rooms = ['E59S62', 'E59S61', 'E58S62', 'other'];
 global.reservations = [  ];
 global.claims = [ 'E57S61', 'E57S62', 'E58S61', 'E59S61', 'E59S62', 'E58S62' ];
-global.blackList = [ 'E57S61', 'E55S62', 'E56S62' ];
+global.blackList = [ 'E57S61' ];
 const roles = { };
 const DEFENDER=0, HARVESTER=1,UPGRADER=2,MOVER=3,REDIRECTER=4,MINER=5,BUILDER=6,REPAIRER=7,COLLECTER=8,CLAIMER=9,GATHERER=10;
 global.ROLE = ['defender','harvester','upgrader','mover','redirecter','miner','builder','repairer','collecter','claimer','gatherer'];
 global.max = {
-    'other' : [     3    ,     3     ,     0    ,   0   ,      0     ,   0   ,    0    ,     0    ,     4     ,     0   ,     0    ],
+    'other' : [     1    ,     3     ,     0    ,   0   ,      0     ,   0   ,    0    ,     0    ,     4     ,     0   ,     0    ],
     'E59S62': [     0    ,     2     ,     0    ,   2   ,      2     ,   1   ],
     'E59S61': [     0    ,     1     ,     0    ,   2   ,      2     ,   1   ],
     'E58S62': [     0    ,     2     ,     0    ,   2   ,      1     ,   1   ],
@@ -49,15 +49,15 @@ global.terminals = {
     'E58S62': [ { type: 'ZK', target: 'E59S61' } ],
 };
 global.deals = [
-    { room: 'E59S61', type: 'H', price: 0.2 },
-    { room: 'E59S61', type: 'O', price: 0.1 },
+    { room: 'E59S61', type: 'H', price: 0.3 },
+    { room: 'E59S61', type: 'O', price: 0.3 },
     { room: 'E59S62', type: 'U', price: 0.15 },
     { room: 'E59S62', type: 'L', price: 0.2 },
-    { room: 'E58S62', type: 'K', price: 0.15 },
-    { room: 'E58S62', type: 'Z', price: 0.15 },
-    { room: 'E59S62', type: 'energy', price: 0.06, minStorage: 700000, min: 100000 },
-    { room: 'E59S61', type: 'energy', price: 0.06, minStorage: 700000, min: 100000 },
-    { room: 'E58S62', type: 'energy', price: 0.06, minStorage: 700000, min: 100000 },
+    { room: 'E58S62', type: 'K', price: 0.1 },
+    { room: 'E58S62', type: 'Z', price: 0.1 },
+    { room: 'E59S62', type: 'energy', price: 0.01, minStorage: 700000, min: 100000 },
+    { room: 'E59S61', type: 'energy', price: 0.01, minStorage: 700000, min: 100000 },
+    { room: 'E58S62', type: 'energy', price: 0.01, minStorage: 700000, min: 100000 },
 ];
 global.minerals = {
     'other' : { id: '57efa0c1b8c6899106eaedd4', type: 'U' },
@@ -211,25 +211,25 @@ module.exports.loop = function ()
     //return;
 	let count = { };
 	let creeps = { };
-	for (let r in rooms)
+	for (const room of rooms)
 	{
-	    count[rooms[r]] = {};
-	    creeps[rooms[r]] = [];
+	    count[room] = {};
+	    creeps[room] = [];
 	}
 	
 	/* Market =====================================================================================================================================================================*/ try {
-    // always look for tokens ;) just in case
+    /*// always look for tokens ;) just in case
     if (Game.time % 4 === 0)
     {
         const token = Game.market.getAllOrders({type:ORDER_SELL, resourceType:SUBSCRIPTION_TOKEN}).find(o => o.price < Game.market.credits && o.price < 3000000);
         if (token) Game.market.deal(token.id, 1);
-    }
+    }*/
 	if (Game.time % 32 === 0)
     {
         // check through all the deals
-        for (let i in deals)
+        for (const { room, type, price, min = 5000, minStorage = 0 } of deals)
         {
-            const { room, type, price, min = 5000, minStorage = 0 } = deals[i]; const r = Game.rooms[room];
+            const r = Game.rooms[room];
             if (!r || !r.terminal || !r.storage || r.storage.get('energy') < 100000 || r.storage.get(type) < minStorage)
                 continue;
             // sell resources
@@ -295,7 +295,7 @@ module.exports.loop = function ()
 	else if (Game.time % 32 === 0)
     {
         // remove structures that have been repaired from Memory
-        for (let r in Memory.repair)
+        for (const r in Memory.repair)
         {
             Memory.repair[r] = Memory.repair[r].filter(id => Game.getObjectById(id) && Game.getObjectById(id).needsRepair(true));
             if (Memory.repair[r].length === 0)
@@ -310,7 +310,7 @@ module.exports.loop = function ()
     max['other'][CLAIMER] = Math.ceil(reservations.filter(r => Game.rooms[r] && (!Game.rooms[r].controller.reservation || Game.rooms[r].controller.reservation.ticksToEnd < 3000)).length / 2);
 
 	/* Delete dead Creeps =====================================================================================================================================================================*/ }catch(e) { error = e; } try {
-	for (let name in Memory.creeps)
+	for (const name in Memory.creeps)
 	{
 	    // remove dead creeps from memory
 		if (!Game.creeps[name])
@@ -327,16 +327,15 @@ module.exports.loop = function ()
 
 	/* Main Loop =====================================================================================================================================================================*/ }catch(e) { error = e; }
 
-	for (let r in rooms)
+	for (const room of rooms)
 	{
-		let room = rooms[r];
 
 		/* Towers =====================================================================================================================================================================*/ try {
 		if (Game.time % 6 === 0 || Memory.state[room] > 0)
 		{
-            for (let t in towers[room])
+            for (const id of towers[room])
             {
-                const tower = Game.getObjectById(towers[room][t]);
+                const tower = Game.getObjectById(id);
                 if (!tower)
                     continue;
                 // look for any enemies in the room; only target creeps that don't belong to me and can do damage
@@ -396,9 +395,8 @@ module.exports.loop = function ()
 		if (Game.time % 16 === 0 && Game.rooms[room] && Game.rooms[room].terminal)
 		{
     		let send = false;
-    		for (let t in terminals[room])
+    		for (const { type, target, amount = 1000, max = 9000 } of terminals[room])
     		{
-    		    const { type, target, amount = 1000, max = 9000 } = terminals[room][t];
     			if (Game.rooms[room].terminal.get(type) >= amount && Game.rooms[target].terminal.get(type) < max && Game.rooms[target].terminal.neededResources(type) > amount)
     			{
     			    Game.rooms[room].terminal.send(type, amount, target);
@@ -408,20 +406,19 @@ module.exports.loop = function ()
     		}
     		// send spare energy to a room in need
     		if (!send && Game.time % 4 === 0 && Game.rooms[room].storage && Game.rooms[room].storage.get('energy') > 200000)
-    		    for (let r in rooms)
-    		        if (rooms[r] !== room && (rm = Game.rooms[rooms[r]], rm && rm.storage && rm.terminal && _.sum(rm.terminal.store) + 5000 < rm.terminal.storeCapacity && Game.rooms[room].storage.get('energy') - rm.storage.get('energy') > 200000))
+    		    for (const r of rooms)
+    		        if (r !== room && (rm = Game.rooms[r], rm && rm.storage && rm.terminal && _.sum(rm.terminal.store) + 5000 < rm.terminal.storeCapacity && Game.rooms[room].storage.get('energy') - rm.storage.get('energy') > 200000))
     		        {
-    		            Game.rooms[room].terminal.send('energy', 1000, rooms[r]);
+    		            Game.rooms[room].terminal.send('energy', 1000, r);
     		            break;
     		        }
 		}
 		
 		/* Labs =====================================================================================================================================================================*/ }catch(e) { error = e; } try {
-		for (let type in labs[room])
+		for (const type in labs[room])
 		{
-		    for (let i in labs[room][type])
+		    for (const { labID, sources, roles = [] } of labs[room][type])
 		    {
-		        const { labID, sources, roles = [] } = labs[room][type][i] || {};
     			const lab = Game.getObjectById(labID);
     			if (lab.cooldown === 0)
     			    lab.runReaction(Game.getObjectById(sources[0]), Game.getObjectById(sources[1]));
@@ -429,11 +426,11 @@ module.exports.loop = function ()
     				continue;
     			// boost any creeps around the lab
     			const targets = lab.room.lookForAtArea(LOOK_CREEPS, lab.pos.y - 1, lab.pos.x - 1, lab.pos.y + 1, lab.pos.x + 1, true).map(t => t.creep);
-    			for (let t in targets)
+    			for (const target of targets)
     			{
-    				if ((targets[t].spawning || targets[t].ticksToLive > 1200) && roles.indexOf(targets[t].memory.role) !== -1 && targets[t].body.find(b => b.boost === undefined && b.type === type) !== undefined)
+    				if ((target.spawning || target.ticksToLive > 1200) && roles.indexOf(target.memory.role) !== -1 && target.body.find(b => b.boost === undefined && b.type === type) !== undefined)
     				{
-    					lab.boostCreep(targets[t]);
+    					lab.boostCreep(target);
     					break;
     				}
     			}

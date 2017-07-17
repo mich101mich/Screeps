@@ -54,7 +54,7 @@ module.exports = {
                 }
                 if (creep.get() > 0)
                 {
-                    for (let type in creep.carry)
+                    for (const type in creep.carry)
                     {
                         if (creep.get(type) === 0)
                             continue;
@@ -65,24 +65,23 @@ module.exports = {
                         return;
                     }
                 }
-                for (let c in connections)
+                for (const { type, sources, targets, min = 0 } of connections)
                 {
-                    const { type, sources, targets, min = 0 } = connections[c];
                     let amount = 0;
-                    for (let t in targets)
+                    for (const id of targets)
                     {
-                        if (!Game.getObjectById(targets[t]))
+                        if (!Game.getObjectById(id))
                             continue;
-                        amount += Game.getObjectById(targets[t]).neededResources(type);
+                        amount += Game.getObjectById(id).neededResources(type);
                         if (amount >= creep.carryCapacity)
                             break;
                     }
                     if (amount < 100)
                         continue;
                     let source;
-                    for (let s in sources)
+                    for (const id of sources)
                     {
-                        source = Game.getObjectById(sources[s]);
+                        source = Game.getObjectById(id);
                         if (source && source.get(type) > min)
                         {
                             creep.withdraw(source, type, Math.min(source.get(type) - min, amount, creep.carryCapacity));
@@ -100,9 +99,8 @@ module.exports = {
                     delete creep.memory.state;
                     return;
                 }
-                for (let c in connections)
+                for (const { type, sources, targets, min = 0 } of connections)
                 {
-                    const { type, sources, targets, min = 0 } = connections[c];
                     if (creep.get(type) === 0)
                         continue;
                     const target = Game.getObjectById(targets.find(t => Game.getObjectById(t) && Game.getObjectById(t).neededResources(type) > 0));
@@ -115,7 +113,7 @@ module.exports = {
                         return;
                     }
                 }
-                for (let type in creep.carry)
+                for (const type in creep.carry)
                 {
                     if (creep.get(type) === 0)
                         continue;
@@ -138,11 +136,11 @@ module.exports = {
 	}
 };
 
-for (let room in jobs)
+for (const room in jobs)
 {
     if (!Game.rooms[room])
         continue;
-    for (let j in jobs[room])
+    for (const j in jobs[room])
     {
         const job = jobs[room][j];
         let structures = [];
@@ -150,7 +148,7 @@ for (let room in jobs)
             structures[i] = Game.rooms[room].lookForAt(LOOK_STRUCTURES, job.pos.getInDirection(i))[0];
         structures = structures.map(s => (s ? s.id : undefined));
         job.dump = structures[job.dump];
-        for (let c in job.connections)
+        for (const c in job.connections)
         {
             job.connections[c].sources = job.connections[c].sources.map(dir => structures[dir]);
             job.connections[c].targets = job.connections[c].targets.map(dir => structures[dir]);

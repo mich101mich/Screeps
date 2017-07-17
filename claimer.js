@@ -17,11 +17,11 @@ module.exports = {
             case STATE_STARTING:
                 if (creep.memory.job === undefined)
                 {
-                    const used = []
-                    for (let name in Game.creeps)
+                    const used = [];
+                    for (const name in Game.creeps)
                         if (Game.creeps[name].isColleague(creep))
                             used[Memory.creeps[name].job] = true;
-                    for (let j in targets)
+                    for (const j in targets)
                     {
                         if (!used[j] && (targets[j].attack || !Game.rooms[targets[j].room] || !Game.rooms[targets[j].room].controller.reservation || Game.rooms[targets[j].room].controller.reservation.ticksToEnd < 3000))
                         {

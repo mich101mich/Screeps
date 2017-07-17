@@ -43,7 +43,7 @@ module.exports = {
 				if ((!target || !target.needsRepair(true)) && Memory.count.repair > 0)
 				{
 				    let min = 50, minI = -1;
-					for (let i in Memory.repair[creep.pos.roomName])
+					for (const i in Memory.repair[creep.pos.roomName])
 					{
 						target = Game.getObjectById(Memory.repair[creep.pos.roomName][i]);
 						if (!target || !target.needsRepair(true))
@@ -68,7 +68,7 @@ module.exports = {
 				}
 				if ((!target || !target.needsRepair(true)) && Memory.count.repair > 0)
                 {
-                    for (let r in Memory.repair)
+                    for (const r in Memory.repair)
                     {
                         target = Game.getObjectById(Memory.repair[r].find(s => (st = Game.getObjectById(s), st && st.needsRepair(true))));
                         if (target && target.needsRepair(true))

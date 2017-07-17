@@ -1,6 +1,5 @@
 const jobs = [
 ];
-console.log("attention!");
 module.exports = {
 	run: function (creep)
 	{
